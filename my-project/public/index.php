@@ -1,7 +1,6 @@
 <?php
-
+ini_set('memory_limit', '-1');
 use App\Kernel;
-
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 return function (array $context) {

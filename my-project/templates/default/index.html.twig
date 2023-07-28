@@ -1,6 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello DefaultController!
+{% block title %}
+	Hello DefaultController!
+
+	{% set string = 'some string \n from \n database' %}
+	{% set users = [{name: 'John'},{name: 'Susan'},{name: 'Robert'}] %}
+
 {% endblock %}
 
 {% block body %}
@@ -34,19 +39,84 @@
 				</code>
 			</li>
 		</ul>
+		
+
+	{{ app.user }}
+	{{ app.request.get('param') }}
+	{{ app.environment }}
+	{# {{ dump(app.session) }} #}
+	
 		<ul>
 			{% for user in users %}
-				<li>{{ user.name }} - you won {{ random_gift[loop.index0] }}</li>
+				{% if random_gift[loop.index0] is defined %}
+			
+					<li>{{ user.name }}
+						- you won
+						{{ random_gift[loop.index0] }}</li>
+					{% endif %}
 			{% endfor %}
 		</ul>
-    
-        {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="flash-{{ label }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-        {% endfor %}
+
+		{# {% for label, messages in app.flashes %}
+			{% for message in messages %}`
+				<div class="flash-{{ label }}">
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endfor %} #}
+
+
+		{% for user in users %}
+			{% if user.name == 'Susan' %}
+
+				<p>
+					{{ user.name }}
+				</p>
+			{% else %}
+				No users where found
+			{% endif %}
+		{% endfor %}
+
+		{% include "includes/subview.html.twig" with {'users': users} %}
+
+		{% for i in 1..10 %}
+			<div class="{{ cycle(['even', 'odd'], i) }}">
+				{{ i }}
+			</div>
+		{% endfor %}
+
+		{# {{ string|escape('html') }}<br> #}
+		{# {{ string|escape('css') }}<br> #}
+		{{ path('home') }}<br>
+		{{ url('home') }}<br>
+		{{ asset('images/logo.png') }}<br>
+		{{ absolute_url(asset('images/logo.png')) }}<br>
+		The google tracking code is: {{ ga_code }}<br>
+
+
+
+
+		{{ 
+			render(
+				controller(
+					'App\\Controller\\DefaultController::mostPopularPosts',
+					{ number: 5 }
+				)
+			) 
+		}}
+
 
 	</div>
+
+{% endblock %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		{# alert(2)#}
+	</script>
+	<script>
+		{# var route = "{{ string|escape('js') }}"; #}
+	</script>
 {% endblock %}

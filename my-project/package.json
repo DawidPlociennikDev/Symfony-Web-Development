@@ -1,0 +1,21 @@
+{
+  "name": "my-project",
+  "version": "1.0.0",
+  "main": "inde1212x.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@symfony/webpack-encore": "^4.4.0",
+    "webpack-notifier": "^1.15.0"
+  },
+  "dependencies": {
+    "jquery": "^3.7.0"
+  },
+  "browser": {
+    "[module-name]": false
+  },
+  "description": ""
+}

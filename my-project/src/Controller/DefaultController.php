@@ -24,8 +24,8 @@ class DefaultController extends AbstractController
         $gifts->gifts = ['a', 'b', 'c', 'd'];
     }
 
-    #[Route('/page', name: 'app_default')]
-    public function index(GiftsService $gifts, Request $request, SessionInterface $session): Response
+    #[Route('/home', name: 'home')]
+    public function index(GiftsService $gifts, Request $request, SessionInterface $session, User $user): Response
     {
         // exit($request->cookies->get('PHPSESSID'));
         // $this->addFlash('notice', 'Your changes were saved');
@@ -56,6 +56,56 @@ class DefaultController extends AbstractController
         // $request->request->get('page');
         // $request->files->get('foo');
 
+
+        // CREATE
+        // $user = new User();
+        // $user->setName('Robert');
+        // $this->entityManager->persist($user);
+        // $this->entityManager->flush();
+
+        // dump('A new user was saved with the id of ' . $user->getId());
+
+        // $repository = $this->entityManager->getRepository(User::class);
+
+        // FIND
+        // $user = $repository->find(1);
+        // $user = $repository->findOneBy(['name' => 'Robert']);
+        // $user = $repository->findOneBy(['id' => 5, 'name' => 'Robert']);
+        // $user = $repository->findBy(['name' => 'Robert'], ['id' => 'DESC']);
+        // $user = $repository->findAll();
+
+        // UPDATE
+        // $id = 1;
+        // $user = $repository->find($id);
+        // if (!$user)
+        // {
+        //     throw $this->createNotFoundException(
+        //         'No user found for id ' . $id
+        //     );
+        // }
+        // $user->setName('New user name!');
+        // $this->entityManager->flush();
+
+        // DELETE
+        // $id = 2;
+        // $user = $repository->find($id);
+        // $this->entityManager->remove($user);
+        // $this->entityManager->flush();
+
+    
+        // dump($user);
+
+        // new method own query
+        $conn = $this->entityManager->getConnection();
+        $sql = '
+            SELECT * FROM user u
+            WHERE u.id > :id
+        ';
+        $stmt = $conn->prepare($sql);
+
+        dump($stmt->executeQuery(['id'=>3])->fetchAllAssociative());
+
+
         $users = $this->entityManager->getRepository(User::class)->findAll();
         if (!$users) {
             throw $this->createNotFoundException('The users do not exist');
@@ -65,6 +115,27 @@ class DefaultController extends AbstractController
             'users' => $users,
             'random_gift' => $gifts->gifts
         ]);
+    }
+
+
+    #[Route('/user/{id}', name: 'user_by_id')]
+    public function getUserById(Request $request, User $user) : Response
+    {
+        dump($user);
+        return $this->render('default/clear.html.twig', [
+        ]);
+    }
+
+
+    #[Route('/doctrine', name: 'doctrine')]
+    public function doctrine(Request $request) : Response
+    {
+        $user = new User();
+        $user->setName('Robert');
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+        
+        return $this->render('default/clear.html.twig', []);
     }
 
     #[Route('/generate-url/{param?}', name: 'generate_url')]
@@ -142,5 +213,14 @@ class DefaultController extends AbstractController
     public function index4(): Response
     {
         return new Response('Translated routes');
+    }
+
+    public function mostPopularPosts($number = 3) 
+    {
+        // database call
+        $posts = ['post 1', 'post 2', 'post 3', 'post 4'];
+        return $this->render('default/most_popular_posts.html.twig', [
+            'posts' => $posts
+        ]);
     }
 }
