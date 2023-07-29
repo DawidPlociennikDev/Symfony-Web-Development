@@ -132,6 +132,11 @@ remove all migration files
   rm migrations/*.php
 ```
 
+create fixtures
+```bash
+  bin/console make:fixtures
+```
+
 run fixtures load
 ```bash
   bin/console doctrine:fixtures:load
@@ -162,5 +167,16 @@ remove entire database, remove migrations folder, create migrations and run migr
   bin/console doctrine:schema:drop -n -q --force --full-database && rm migrations/*.php && bin/console make:migration && bin/console doctrine:migrations:migrate -n -q
 ```
 
+proxy manager bridge
+```bash
+  composer require symfony/proxy-manager-bridge
+```
+
+autowiring - list services autowiring
+```bash
+  bin/console debug:autowiring
+```
 
 
+
+    

@@ -2,18 +2,24 @@
 
 namespace App\Controller;
 
-use App\Entity\Address;
+use App\Entity\Pdf;
 use App\Entity\User;
 use App\Entity\Video;
+use App\Entity\Address;
+use App\Entity\Author;
+use App\Entity\File;
 use App\Services\GiftsService;
+use App\Services\MyService;
+use App\Services\ServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DefaultController extends AbstractController
 {
@@ -238,6 +244,31 @@ class DefaultController extends AbstractController
         dump($user1->getFollowed()->count());
         dump($user1->getFollowing()->count());
         dump($user4->getFollowing()->count());
+
+        return $this->render('default/clear.html.twig', []);
+    }
+    
+    #[Route('/doctrine_entities', name: 'doctrine_entities')]
+    public function doctrine_entities(Request $request) : Response
+    {
+        // $items = $this->entityManager->getRepository(File::class)->find(1);
+        $author = $this->entityManager->getRepository(Author::class)->findByIdWithPdf(1);
+        dump($author);
+        foreach ($author->getFiles() as $file) {
+            // if ($file instanceof Pdf)
+                dump($file->getFilename());
+        }
+
+        return $this->render('default/clear.html.twig', []);
+    }
+    
+    #[Route('/service', name: 'service')]
+    public function service(Request $request, ServiceInterface $service)
+    {
+        // $user = $this->entityManager->getRepository(User::class)->find(1);
+        // $user->setName('Rob');
+        // $this->entityManager->persist($user);
+        // $this->entityManager->flush();
 
         return $this->render('default/clear.html.twig', []);
     }
