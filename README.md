@@ -80,3 +80,87 @@ clear cache
 ```bash
   bin/console cache:clear
 ```
+
+composer assets path 
+```bash
+  composer require symfony/asset
+```
+
+webpack for CSS and JavaScript
+```bash
+  npm install @symfony/webpack-encore --save-dev
+  composer require encore
+```
+
+JQuery library
+```bash
+  npm install --save jquery
+```
+
+compile webpack
+```bash
+  ./node_modules/.bin/encore production
+```
+
+webpack live 
+```bash
+  ./node_modules/.bin/encore dev --watch
+```
+
+composer security bundle package 
+```bash
+  composer require symfony/security-bundle 
+```
+
+composer orm fixtures
+```bash
+  composer require orm-fixtures --dev 
+```
+
+doctrine list
+```bash
+  bin/console list doctrine
+```
+
+delete entire database, remove all migration files and generate new migration
+```bash
+  bin/console doctrine:schema:drop -n -q --force --full-database
+```
+
+remove all migration files
+```bash
+  rm migrations/*.php
+```
+
+run fixtures load
+```bash
+  bin/console doctrine:fixtures:load
+```
+
+profiler - dev toolbar
+```bash
+  composer require --dev symfony/profiler-pack
+```
+
+profiler dumper
+```bash
+  composer require --dev symfony/var-dumper
+```
+
+profiler panel dump
+```bash
+  composer req debug
+```
+
+extra bundle package
+```bash
+  composer require sensio/framework-extra-bundle
+```
+
+remove entire database, remove migrations folder, create migrations and run migrations
+```bash
+  bin/console doctrine:schema:drop -n -q --force --full-database && rm migrations/*.php && bin/console make:migration && bin/console doctrine:migrations:migrate -n -q
+```
+
+
+

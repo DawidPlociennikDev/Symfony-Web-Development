@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Address;
 use App\Entity\User;
+use App\Entity\Video;
 use App\Services\GiftsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -135,6 +137,130 @@ class DefaultController extends AbstractController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
         
+        return $this->render('default/clear.html.twig', []);
+    }
+
+
+    #[Route('/video', name: 'video')]
+    public function video(Request $request) : Response
+    {
+        $user = new User();
+        $user->setName('Robert');
+        for ($i=1; $i <= 3; $i++) { 
+            $video = new Video();
+            $video->setTitle('Video title - ' . $i);
+            $user->addVideo($video);
+            $this->entityManager->persist($video);
+        }
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        // dump('Created a video with the id of ' . $video->getId());
+        // dump('Created a video with the id of ' . $user->getId());
+        
+        // $video = $this->entityManager->getRepository(Video::class)->find(1);
+        // dump($video->getUser());
+        // dump($video->getUser()->getName());
+        // $user = $this->entityManager->getRepository(User::class)->find(1);
+
+        // foreach ($user->getVideos() as $video) {
+        //     dump($video->getTitle());
+        // }
+
+        return $this->render('default/clear.html.twig', []);
+    }
+
+
+    #[Route('/delete_user', name: 'delete_user')]
+    public function delete_user(Request $request) : Response
+    {
+        $user = $this->entityManager->getRepository(User::class)->find(1);
+        $video = $this->entityManager->getRepository(Video::class)->find(1);
+
+        $user->removeVideo($video);
+        $this->entityManager->flush();
+
+        foreach ($user->getVideos() as $video) {
+            dump($video->getTitle());
+        }
+
+        // $this->entityManager->remove($user);
+        // $this->entityManager->flush();
+        // dump($user);
+
+        return $this->render('default/clear.html.twig', []);
+    }
+
+
+    #[Route('/address', name: 'address')]
+    public function address(Request $request) : Response
+    {
+        $user = new User();
+        $user->setName('John');
+        $address = new Address();
+        $address->setStreet('street');
+        $address->setNumber(23);
+        $user->setAddress($address);
+
+        $this->entityManager->persist($user);
+        $this->entityManager->persist($address);
+        $this->entityManager->flush();
+
+        dump($user->getAddress()->getStreet());
+
+
+        return $this->render('default/clear.html.twig', []);
+    }
+
+    #[Route('/followed', name: 'followed')]
+    public function followed(Request $request) : Response
+    {
+        // for ($i=1; $i <= 4; $i++) { 
+        //     $user = new User();
+        //     $user->setName('Robert - ' . $i);
+        //     $this->entityManager->persist($user);
+        // }
+
+        // $this->entityManager->flush();
+        // dump('last user id - ' . $user->getId());
+
+        $user1 = $this->entityManager->getRepository(User::class)->find(1);
+        // $user2 = $this->entityManager->getRepository(User::class)->find(2);
+        // $user3 = $this->entityManager->getRepository(User::class)->find(3);
+        $user4 = $this->entityManager->getRepository(User::class)->find(4);
+
+        // $user1->addFollowed($user2);
+        // $user1->addFollowed($user3);
+        // $user1->addFollowed($user4);
+
+        // $this->entityManager->flush();
+
+        dump($user1->getFollowed()->count());
+        dump($user1->getFollowing()->count());
+        dump($user4->getFollowing()->count());
+
+        return $this->render('default/clear.html.twig', []);
+    }
+    
+    #[Route('/eager', name: 'eager')]
+    public function eager(Request $request) : Response
+    {
+        // $user = new User();
+        // $user->setName('Robert');
+
+        // for ($i=1; $i <= 3 ; $i++) { 
+        //     $video = new Video();
+        //     $video->setTitle('Video title - ' . $i);
+        //     $user->addVideo($video);
+        //     $this->entityManager->persist($video);
+        // }
+
+        // $this->entityManager->persist($user);
+        // $this->entityManager->flush();
+
+        $user = $this->entityManager->getRepository(User::class)->findWithVideos(1);
+        dump($user);
+
         return $this->render('default/clear.html.twig', []);
     }
 
