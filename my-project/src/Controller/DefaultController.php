@@ -9,10 +9,12 @@ use App\Entity\User;
 use App\Entity\Video;
 use App\Entity\Author;
 use App\Entity\Address;
+use App\Entity\SecurityUser;
 use App\Form\VideoFormType;
 use App\Services\MyService;
 use App\Services\GiftsService;
 use App\Events\VideoCreatedEvent;
+use App\Form\RegisterUserType;
 use Symfony\Component\Mime\Email;
 use App\Services\ServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,6 +31,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 
 class DefaultController extends AbstractController
 {
@@ -393,6 +396,32 @@ class DefaultController extends AbstractController
         }
 
         return $this->render('default/clear.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    #[Route('/register', name: 'register')]
+    public function register(Request $request)
+    {
+
+        $users = $this->entityManager->getRepository(SecurityUser::class)->findAll();
+        dump($users);
+
+        $user = new SecurityUser();
+        $form = $this->createForm(RegisterUserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $user->setPassword($form->get('password')->getData());
+
+            $user->setEmail($form->get('email')->getData());
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+            return $this->redirectToRoute('home');
+        }
+
+        return $this->render('default/register.html.twig', [
             'form' => $form->createView()
         ]);
     }

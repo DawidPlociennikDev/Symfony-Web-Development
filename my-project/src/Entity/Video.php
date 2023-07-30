@@ -44,6 +44,9 @@ class Video extends File
     )]
     private ?string $file = null;
 
+    #[ORM\ManyToOne(inversedBy: 'videos')]
+    private ?SecurityUser $securityUser = null;
+
     public function getTitle(): ?string
     {
         return $this->title;
@@ -112,6 +115,18 @@ class Video extends File
     public function setFile(string $file): static
     {
         $this->file = $file;
+
+        return $this;
+    }
+
+    public function getSecurityUser(): ?SecurityUser
+    {
+        return $this->securityUser;
+    }
+
+    public function setSecurityUser(?SecurityUser $securityUser): static
+    {
+        $this->securityUser = $securityUser;
 
         return $this;
     }
