@@ -31,7 +31,7 @@ class SecurityUser implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[ORM\Column(type: 'password')]
+    #[ORM\Column(type: 'string')]
     #[Assert\NotBlank()]
     #[Assert\Length(max: '64')]
     private ?string $password = null;

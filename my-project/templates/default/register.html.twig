@@ -18,6 +18,12 @@
 		}
 	</style>
 
+	{% if is_granted('ROLE_ADMIN') %}
+		<a href="...">Delete something, only admin can do this</a>
+	{% endif %}
+	{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+		<p>Username: {{ app.user.email }}</p>
+	{% endif %}
 	<div class="example-wrapper">
 	{{ form(form) }}
     </div>

@@ -18,6 +18,7 @@ use App\Form\RegisterUserType;
 use Symfony\Component\Mime\Email;
 use App\Services\ServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DefaultController extends AbstractController
 {
@@ -158,6 +162,25 @@ class DefaultController extends AbstractController
 
         return $this->render('default/clear.html.twig', []);
     }
+
+
+    #[Route([
+        "en" => "/login",
+        "pl" => "/logowanie"
+    ], 
+    name: 'video_testing')]
+    public function video_testing(Request $request, TranslatorInterface $translator): Response
+    {
+        $videos = $this->entityManager->getRepository(Video::class)->findAll();
+        dump($videos);
+
+        $translated = $translator->trans('some.key');
+        dump($translated);
+        dump($request->getLocale());
+
+        return $this->render('default/clear.html.twig', []);
+    }
+
 
 
     #[Route('/video', name: 'video')]
@@ -400,8 +423,83 @@ class DefaultController extends AbstractController
         ]);
     }
 
-    #[Route('/register', name: 'register')]
-    public function register(Request $request)
+    #[Route('/auth_annotations', name: 'auth_annotations')]
+    public function auth_annotations(Request $request, UserPasswordHasherInterface $passwordHasher)
+    {
+
+        $users = $this->entityManager->getRepository(SecurityUser::class)->findAll();
+        dump($users);
+
+        $user = new SecurityUser;
+        $user->setEmail('admin@admin.com');
+        $password = $passwordHasher->hashPassword($user, 'hash');
+        $user->setPassword($password);
+        $user->setRoles(['ROLE_ADMIN']);
+
+        $video = new Video;
+        $video->setTitle('video title');
+        $video->setFile('video path');
+        $video->setFilename('video title');
+        $video->setSize('1024');
+        $video->setDescription('video title');
+        $video->setFormat('video title');
+        $video->setDuration(123);
+        $video->setCreatedAt(new \DateTime());
+        $this->entityManager->persist($video);
+
+        $user->addVideo($video);
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        dump($user->getId());
+        dump($video->getId());
+
+
+        return $this->render('default/clear.html.twig', [
+        ]);
+    }
+
+    #[Route('/auth_annotations/{id}/delete-video', name: 'delete-video')]
+    // #[Security('user.getId() == video.getSecurityUser().getId()')]
+    #[Security("is_granted('ROLE_ADMIN')")]
+    public function delete_video(Request $request, UserPasswordHasherInterface $passwordHasher, Video $video)
+    {
+
+        $users = $this->entityManager->getRepository(SecurityUser::class)->findAll();
+        dump($users);
+        dump($video);
+
+
+        return $this->render('default/clear.html.twig', [
+        ]);
+    }
+
+    #[Route('/video_user_owner', name: 'video_user_owner')]
+    public function video_user_owner(Request $request, UserPasswordHasherInterface $passwordHasher)
+    {
+
+        $video = $this->entityManager->getRepository(Video::class)->find(3);
+
+        $this->denyAccessUnlessGranted('VIDEO_DELETE', $video);
+
+
+        return $this->render('default/clear.html.twig', [
+        ]);
+    }
+
+    #[Route('/for_functional_test', name: 'for_functional_test')]
+    public function for_functional_test(Request $request)
+    {
+
+        return $this->render('default/testing.html.twig', [
+        ]);
+    }
+
+
+
+    #[Route('/admin', name: 'admin')]
+    public function admin(Request $request, UserPasswordHasherInterface $passwordHasher)
     {
 
         $users = $this->entityManager->getRepository(SecurityUser::class)->findAll();
@@ -413,16 +511,74 @@ class DefaultController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid())
         {
-            $user->setPassword($form->get('password')->getData());
+            $user->setPassword(
+                $passwordHasher->hashPassword($user, $form->get('password')->getData())
+            );
 
             $user->setEmail($form->get('email')->getData());
             $this->entityManager->persist($user);
             $this->entityManager->flush();
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('form');
         }
 
         return $this->render('default/register.html.twig', [
             'form' => $form->createView()
+        ]);
+    }
+
+
+    #[Route('/register', name: 'register')]
+    public function register(Request $request, UserPasswordHasherInterface $passwordHasher)
+    {
+
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $users = $this->entityManager->getRepository(SecurityUser::class)->findAll();
+        dump($users);
+
+        $user = new SecurityUser();
+        $form = $this->createForm(RegisterUserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $user->setPassword(
+                $passwordHasher->hashPassword($user, $form->get('password')->getData())
+            );
+
+            $user->setEmail($form->get('email')->getData());
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+            return $this->redirectToRoute('form');
+        }
+
+        return $this->render('default/register.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    #[Route([
+        "en" => "/login",
+        "pl" => "/logowanie"
+    ],  name: 'login')]
+    public function login(AuthenticationUtils $authenticationUtils)
+    {
+
+        $error = $authenticationUtils->getLastAuthenticationError();
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render('default/login.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error,
+        ]);
+    }
+
+    #[Route('/pluralization', name: 'pluralization')]
+    public function pluralization(Request $request, TranslatorInterface $translator)
+    {
+
+        return $this->render('default/clear.html.twig', [
+            'count' => 0,
         ]);
     }
 
@@ -545,14 +701,14 @@ class DefaultController extends AbstractController
     }
 
 
-    #[Route(
-        ['nl' => '/over-ons', 'en' => '/about-us'],
-        name: 'about_us',
-    )]
-    public function index4(): Response
-    {
-        return new Response('Translated routes');
-    }
+    // #[Route(
+    //     ['nl' => '/over-ons', 'en' => '/about-us'],
+    //     name: 'about_us',
+    // )]
+    // public function index4(): Response
+    // {
+    //     return new Response('Translated routes');
+    // }
 
     public function mostPopularPosts($number = 3)
     {

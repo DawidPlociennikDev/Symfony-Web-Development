@@ -127,6 +127,11 @@ delete entire database, remove all migration files and generate new migration
   bin/console doctrine:schema:drop -n -q --force --full-database
 ```
 
+delete entire database
+```bash
+  bin/console doctrine:schema:drop --force
+```
+
 remove all migration files
 ```bash
   rm migrations/*.php
@@ -242,6 +247,65 @@ something to test needed
   composer require --dev dbrekelmans/bdi && vendor/bin/bdi detect drivers
 ```
 
+Security user
+```bash
+  bin/console make:user
+```
+
+package for security user
+```bash
+  composer require symfony/orm-pack symfony/form symfony/security-bundle symfony/validator
+```
+
+password hasher
+```bash
+  composer require symfony/password-hasher
+```
+
+checking security
+```bash
+  composer require symfony/security-bundle
+```
+
+expression-language package
+```bash
+  composer require symfony/expression-language
+```
+
+voter
+```bash
+  bin/console make:voter
+```
+
+unit test to test services
+```bash
+  bin/console make:unit-test
+```
+
+functional test to test controllers
+```bash
+  bin/console make:functional-test
+```
+
+install xdebug extension on linux
+```bash
+  sudo apt-get install php-xdebug
+```
+
+restart apache server on linux
+```bash
+  sudo service apache2 restart
+```
+
+coverage tests
+```bash
+  php bin/phpunit --coverage-text
+```
+
+translation
+```bash
+  composer require symfony/translation
+```
 
 ## Symfony deploy
 

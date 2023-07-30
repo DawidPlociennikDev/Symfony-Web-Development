@@ -19,16 +19,8 @@
 	</style>
 
 	<div class="example-wrapper">
-		{% if app.user %}
-			<a href="{{ path('logout')}}">logout</a>
-		{% endif %}
-
-		{% trans %}
-		some.key
-		{% endtrans %}
-		<br>
-		{{ 'some.key' | trans | raw }}
-		{{ 'symfony.learning' | transchoice(count) }}
+		<h1 class="test">Hi Dawid</h1>
+		<a href="{{ path('login') }}">Awesome link</a>
     </div>
 {% endblock %}
 
