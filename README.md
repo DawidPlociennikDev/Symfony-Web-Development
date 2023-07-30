@@ -217,7 +217,30 @@ validation package
   composer require symfony/validator doctrine/annotations
 ```
 
+mailer
+```bash
+  composer require symfony/mailer
+```
 
+install phpunit package
+```bash
+  composer require --dev symfony/test-pack
+```
+
+create testing file
+```bash
+  php bin/console make:test
+```
+
+run test
+```bash
+  php bin/phpunit
+```
+
+something to test needed
+```bash
+  composer require --dev dbrekelmans/bdi && vendor/bin/bdi detect drivers
+```
 
 
 ## Symfony deploy
