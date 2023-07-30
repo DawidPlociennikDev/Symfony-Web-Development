@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     download_directory: '../public/'
+    videos_directory: '%kernel.project_dir%/public/uploads/videos'
     admin_email: admin@email.com
     
 services:
@@ -38,3 +39,7 @@ services:
          - { name: kernel.cache_clearer }
 
     App\Services\ServiceInterface: '@App\Services\MyService'
+
+    # App\Listeners\VideoCreatedListener:
+    #     tags:
+    #         - { name: kernel.event_listener, event: video.created.event, method: onVideoCreatedEvent }

@@ -8,9 +8,12 @@ use App\Entity\Video;
 use App\Entity\Address;
 use App\Entity\Author;
 use App\Entity\File;
+use App\Events\VideoCreatedEvent;
+use App\Form\VideoFormType;
 use App\Services\GiftsService;
 use App\Services\MyService;
 use App\Services\ServiceInterface;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,17 +22,22 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DefaultController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
+    private EventDispatcherInterface $dispatcher;
 
-    public function __construct(EntityManagerInterface $entityManager, GiftsService $gifts, $logger)
+    public function __construct(EntityManagerInterface $entityManager, GiftsService $gifts, $logger, EventDispatcherInterface $dispatcher)
     {
         // user service $logger;
         $this->entityManager = $entityManager;
         $gifts->gifts = ['a', 'b', 'c', 'd'];
+        $this->dispatcher = $dispatcher;
     }
 
     #[Route('/home', name: 'home')]
@@ -260,6 +268,137 @@ class DefaultController extends AbstractController
         }
 
         return $this->render('default/clear.html.twig', []);
+    }
+    
+    #[Route('/cache', name: 'cache')]
+    public function cache()
+    {
+        $cache = new FilesystemAdapter();
+        $posts = $cache->getItem('database.get_posts');
+
+        if (!$posts->isHit())
+        {
+            $posts_from_db = ['post 1', 'post 2', 'post 3'];
+            dump('connected with database...');
+
+            $posts->set(serialize($posts_from_db));
+            $posts->expiresAfter(15);
+        }
+        $cache->deleteItem('database.get_posts');
+
+        $cache->clear();
+
+        dump(unserialize($posts->get()));
+
+        return $this->render('default/clear.html.twig', []);
+    }
+    
+    #[Route('/cache2', name: 'cache2')]
+    public function cache2()
+    {
+        $cache = new TagAwareAdapter(
+            new FilesystemAdapter()
+        );
+
+
+        $acer = $cache->getItem('acer');
+        $dell = $cache->getItem('dell');
+        $ibm = $cache->getItem('ibm');
+        $apple = $cache->getItem('apple');
+
+        if (!$acer->isHit())
+        {
+            $acer_from_db = 'acer laptop';
+            $acer->set($acer_from_db);
+            $acer->tag(['computers', 'laptops', 'acer']);
+            $cache->save($acer);
+            dump('acer laptop from database');
+        }
+
+        if (!$dell->isHit())
+        {
+            $dell_from_db = 'dell laptop';
+            $dell->set($dell_from_db);
+            $dell->tag(['computers', 'laptops', 'dell']);
+            $cache->save($dell);
+            dump('dell laptop from database');
+        }
+
+        if (!$ibm->isHit())
+        {
+            $ibm_from_db = 'ibm laptop';
+            $ibm->set($ibm_from_db);
+            $ibm->tag(['computers', 'desktops', 'ibm']);
+            $cache->save($ibm);
+            dump('ibm laptop from database');
+        }
+
+        if (!$apple->isHit())
+        {
+            $apple_from_db = 'apple laptop';
+            $apple->set($apple_from_db);
+            $apple->tag(['computers', 'desktops', 'apple']);
+            $cache->save($apple);
+            dump('apple laptop from database');
+        }
+
+        // $cache->invalidateTags(['ibm']);
+        // $cache->invalidateTags(['desktops']);
+        // $cache->invalidateTags(['laptops']);
+        $cache->invalidateTags(['computers']);
+
+        dump($acer->get());
+        dump($dell->get());
+        dump($ibm->get());
+        dump($apple->get());
+
+        return $this->render('default/clear.html.twig', []);
+    }
+    
+    #[Route('/event', name: 'event')]
+    public function event(Request $request)
+    {
+        $video = new \stdClass();
+        $video->title = 'Funny movie';
+        $video->category = 'funny';
+
+        $event = new VideoCreatedEvent($video);
+        $this->dispatcher->dispatch($event, 'video.created.event');
+
+        return $this->render('default/clear.html.twig', []);
+    }
+    
+    #[Route('/form', name: 'form')]
+    public function form(Request $request)
+    {
+        $video = new Video();
+
+        // $video->setTitle('Write a blog post');
+        // $video->setCreatedAt(new DateTime('tomorrow'));
+        // $videos = $this->entityManager->getRepository(Video::class)->findAll();
+        // dump($videos);
+
+        // $video = $this->entityManager->getRepository(Video::class)->find(1);
+
+        $form = $this->createForm(VideoFormType::class, $video);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) 
+        {
+            $file = $form->get('file')->getData();
+            $fileName = sha1(random_bytes(14)).'.'.$file->guessExtension();
+            $file->move(
+                $this->getParameter('videos_directory'),
+                $fileName
+            );
+            $video->setFile($fileName);
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+            return $this->redirectToRoute('form');
+        }
+
+        return $this->render('default/clear.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
     
     #[Route('/service', name: 'service')]

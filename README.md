@@ -177,6 +177,82 @@ autowiring - list services autowiring
   bin/console debug:autowiring
 ```
 
+debug container
+```bash
+  bin/console debug:container {container_name}
+```
+
+cache
+```bash
+  composer require symfony/cache
+```
+
+list all listeners
+```bash
+  bin/console debug:event-dispatcher
+```
+
+create subscriver class
+```bash
+  bin/console make:subscriber
+```
+
+package for forms
+```bash
+  composer require symfony/form
+```
+
+create form class
+```bash
+  bin/console make:form VideoFormType
+```
+
+update migration file
+```bash
+  bin/console doctrine:migrations:diff
+```
+
+validation package
+```bash
+  composer require symfony/validator doctrine/annotations
+```
+
+
+
+
+## Symfony deploy
+
+change .env.local to .env and fill production data
+
+optimize after git deploy project !IT'S NECESSERY!
+```bash
+  composer install --no-dev --optimize-autoloader
+```
+
+run new packages
+```bash
+  composer dump-autoload --optimize --no-dev --classmap-authoritative
+```
+
+create database
+```bash
+  bin/console doctrine:database:create
+```
+
+generate migration files
+```bash
+  bin/console doctrine:migrations:generate
+```
+
+run Migration
+```bash
+  bin/console doctrine:migrations:migrate
+```
+
+clear cache on the production 
+```bash
+  bin/console cache:clear --env=prod --no-debug
+```
 
 
     
