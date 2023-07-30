@@ -2,30 +2,33 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\Entity\Pdf;
+use App\Entity\File;
 use App\Entity\User;
 use App\Entity\Video;
-use App\Entity\Address;
 use App\Entity\Author;
-use App\Entity\File;
-use App\Events\VideoCreatedEvent;
+use App\Entity\Address;
 use App\Form\VideoFormType;
-use App\Services\GiftsService;
 use App\Services\MyService;
+use App\Services\GiftsService;
+use App\Events\VideoCreatedEvent;
+use Symfony\Component\Mime\Email;
 use App\Services\ServiceInterface;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class DefaultController extends AbstractController
 {
@@ -108,7 +111,7 @@ class DefaultController extends AbstractController
         // $this->entityManager->remove($user);
         // $this->entityManager->flush();
 
-    
+
         // dump($user);
 
         // new method own query
@@ -119,7 +122,7 @@ class DefaultController extends AbstractController
         ';
         $stmt = $conn->prepare($sql);
 
-        dump($stmt->executeQuery(['id'=>3])->fetchAllAssociative());
+        dump($stmt->executeQuery(['id' => 3])->fetchAllAssociative());
 
 
         $users = $this->entityManager->getRepository(User::class)->findAll();
@@ -135,32 +138,31 @@ class DefaultController extends AbstractController
 
 
     #[Route('/user/{id}', name: 'user_by_id')]
-    public function getUserById(Request $request, User $user) : Response
+    public function getUserById(Request $request, User $user): Response
     {
         dump($user);
-        return $this->render('default/clear.html.twig', [
-        ]);
+        return $this->render('default/clear.html.twig', []);
     }
 
 
     #[Route('/doctrine', name: 'doctrine')]
-    public function doctrine(Request $request) : Response
+    public function doctrine(Request $request): Response
     {
         $user = new User();
         $user->setName('Robert');
         $this->entityManager->persist($user);
         $this->entityManager->flush();
-        
+
         return $this->render('default/clear.html.twig', []);
     }
 
 
     #[Route('/video', name: 'video')]
-    public function video(Request $request) : Response
+    public function video(Request $request): Response
     {
         $user = new User();
         $user->setName('Robert');
-        for ($i=1; $i <= 3; $i++) { 
+        for ($i = 1; $i <= 3; $i++) {
             $video = new Video();
             $video->setTitle('Video title - ' . $i);
             $user->addVideo($video);
@@ -171,7 +173,7 @@ class DefaultController extends AbstractController
 
         // dump('Created a video with the id of ' . $video->getId());
         // dump('Created a video with the id of ' . $user->getId());
-        
+
         // $video = $this->entityManager->getRepository(Video::class)->find(1);
         // dump($video->getUser());
         // dump($video->getUser()->getName());
@@ -186,7 +188,7 @@ class DefaultController extends AbstractController
 
 
     #[Route('/delete_user', name: 'delete_user')]
-    public function delete_user(Request $request) : Response
+    public function delete_user(Request $request): Response
     {
         $user = $this->entityManager->getRepository(User::class)->find(1);
         $video = $this->entityManager->getRepository(Video::class)->find(1);
@@ -207,7 +209,7 @@ class DefaultController extends AbstractController
 
 
     #[Route('/address', name: 'address')]
-    public function address(Request $request) : Response
+    public function address(Request $request): Response
     {
         $user = new User();
         $user->setName('John');
@@ -227,7 +229,7 @@ class DefaultController extends AbstractController
     }
 
     #[Route('/followed', name: 'followed')]
-    public function followed(Request $request) : Response
+    public function followed(Request $request): Response
     {
         // for ($i=1; $i <= 4; $i++) { 
         //     $user = new User();
@@ -255,29 +257,28 @@ class DefaultController extends AbstractController
 
         return $this->render('default/clear.html.twig', []);
     }
-    
+
     #[Route('/doctrine_entities', name: 'doctrine_entities')]
-    public function doctrine_entities(Request $request) : Response
+    public function doctrine_entities(Request $request): Response
     {
         // $items = $this->entityManager->getRepository(File::class)->find(1);
         $author = $this->entityManager->getRepository(Author::class)->findByIdWithPdf(1);
         dump($author);
         foreach ($author->getFiles() as $file) {
             // if ($file instanceof Pdf)
-                dump($file->getFilename());
+            dump($file->getFilename());
         }
 
         return $this->render('default/clear.html.twig', []);
     }
-    
+
     #[Route('/cache', name: 'cache')]
     public function cache()
     {
         $cache = new FilesystemAdapter();
         $posts = $cache->getItem('database.get_posts');
 
-        if (!$posts->isHit())
-        {
+        if (!$posts->isHit()) {
             $posts_from_db = ['post 1', 'post 2', 'post 3'];
             dump('connected with database...');
 
@@ -292,7 +293,7 @@ class DefaultController extends AbstractController
 
         return $this->render('default/clear.html.twig', []);
     }
-    
+
     #[Route('/cache2', name: 'cache2')]
     public function cache2()
     {
@@ -306,8 +307,7 @@ class DefaultController extends AbstractController
         $ibm = $cache->getItem('ibm');
         $apple = $cache->getItem('apple');
 
-        if (!$acer->isHit())
-        {
+        if (!$acer->isHit()) {
             $acer_from_db = 'acer laptop';
             $acer->set($acer_from_db);
             $acer->tag(['computers', 'laptops', 'acer']);
@@ -315,8 +315,7 @@ class DefaultController extends AbstractController
             dump('acer laptop from database');
         }
 
-        if (!$dell->isHit())
-        {
+        if (!$dell->isHit()) {
             $dell_from_db = 'dell laptop';
             $dell->set($dell_from_db);
             $dell->tag(['computers', 'laptops', 'dell']);
@@ -324,8 +323,7 @@ class DefaultController extends AbstractController
             dump('dell laptop from database');
         }
 
-        if (!$ibm->isHit())
-        {
+        if (!$ibm->isHit()) {
             $ibm_from_db = 'ibm laptop';
             $ibm->set($ibm_from_db);
             $ibm->tag(['computers', 'desktops', 'ibm']);
@@ -333,8 +331,7 @@ class DefaultController extends AbstractController
             dump('ibm laptop from database');
         }
 
-        if (!$apple->isHit())
-        {
+        if (!$apple->isHit()) {
             $apple_from_db = 'apple laptop';
             $apple->set($apple_from_db);
             $apple->tag(['computers', 'desktops', 'apple']);
@@ -354,7 +351,7 @@ class DefaultController extends AbstractController
 
         return $this->render('default/clear.html.twig', []);
     }
-    
+
     #[Route('/event', name: 'event')]
     public function event(Request $request)
     {
@@ -367,7 +364,7 @@ class DefaultController extends AbstractController
 
         return $this->render('default/clear.html.twig', []);
     }
-    
+
     #[Route('/form', name: 'form')]
     public function form(Request $request)
     {
@@ -382,10 +379,9 @@ class DefaultController extends AbstractController
 
         $form = $this->createForm(VideoFormType::class, $video);
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) 
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $file = $form->get('file')->getData();
-            $fileName = sha1(random_bytes(14)).'.'.$file->guessExtension();
+            $fileName = sha1(random_bytes(14)) . '.' . $file->guessExtension();
             $file->move(
                 $this->getParameter('videos_directory'),
                 $fileName
@@ -400,7 +396,25 @@ class DefaultController extends AbstractController
             'form' => $form->createView()
         ]);
     }
-    
+
+    #[Route('/mailer', name: 'mailer')]
+    public function mailer(MailerInterface $mailer)
+    {
+        $message = (new TemplatedEmail())
+            ->from('symfony@test.com')
+            ->to('dawid.plociennik13@gmail.com')
+            ->subject('Time for Symfony Mailer!')
+            ->text('Sending emails is fun again!')
+            ->htmlTemplate('emails/registration.html.twig')
+            ->context([
+                'name' => 'Robert',
+            ]);
+
+        $mailer->send($message);
+
+        return $this->render('default/clear.html.twig', []);
+    }
+
     #[Route('/service', name: 'service')]
     public function service(Request $request, ServiceInterface $service)
     {
@@ -411,9 +425,9 @@ class DefaultController extends AbstractController
 
         return $this->render('default/clear.html.twig', []);
     }
-    
+
     #[Route('/eager', name: 'eager')]
-    public function eager(Request $request) : Response
+    public function eager(Request $request): Response
     {
         // $user = new User();
         // $user->setName('Robert');
@@ -448,7 +462,7 @@ class DefaultController extends AbstractController
     public function download()
     {
         $path = $this->getParameter('download_directory');
-        return $this->file($path.'file.pdf');
+        return $this->file($path . 'file.pdf');
     }
 
     #[Route('/redirect-test', name: 'redirect_test')]
@@ -511,7 +525,7 @@ class DefaultController extends AbstractController
         return new Response('Translated routes');
     }
 
-    public function mostPopularPosts($number = 3) 
+    public function mostPopularPosts($number = 3)
     {
         // database call
         $posts = ['post 1', 'post 2', 'post 3', 'post 4'];
