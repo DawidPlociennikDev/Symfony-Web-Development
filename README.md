@@ -307,6 +307,15 @@ translation
   composer require symfony/translation
 ```
 
+annotations package for routes controller
+```bash
+  composer require annotations
+```
+
+install apache-pack htaccess
+```bash
+  composer require symfony/apache-pack
+```
 ## Symfony deploy
 
 change .env.local to .env and fill production data
