@@ -21,6 +21,11 @@ Twig install via composer
   composer require twig
 ```
 
+Twig Extension install via composer
+```bash
+  bin/console make:twig-extension
+```
+
 Install database via composer
 ```bash
   composer require doctrine
@@ -43,7 +48,9 @@ Maker create controller
 
 ORM composer
 ```bash
-  composer require orm
+  composer require symfony/orm-pack
+  composer require orm --with-all-dependencies
+  
 ```
 
 create Database
@@ -149,7 +156,7 @@ run fixtures load
 
 profiler - dev toolbar
 ```bash
-  composer require --dev symfony/profiler-pack
+  composer require --dev symfony/profiler-pack --dev
 ```
 
 profiler dumper
@@ -315,6 +322,11 @@ annotations package for routes controller
 install apache-pack htaccess
 ```bash
   composer require symfony/apache-pack
+```
+
+pagination github.com/KnpLabs/KnpPaginatorBundle
+```bash
+  composer require knplabs/knp-paginator-bundle
 ```
 ## Symfony deploy
 
