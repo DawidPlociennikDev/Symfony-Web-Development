@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Entity\Video;
 use App\Form\CategoryType;
 use App\Utils\CategoryTreeAdminOptionList;
 use App\Utils\CategoryTreeListAdmin;
@@ -92,7 +93,14 @@ class AdminController extends AbstractController
     #[Route('/videos', name: 'videos')]
     public function videos(): Response
     {
-        return $this->render('admin/videos.html.twig');
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $videos = $this->manager->getRepository(Video::class)->findAll();
+        } else {
+            $videos = $this->getUser()->getLikedVideos();
+        }
+        return $this->render('admin/videos.html.twig', [
+            'videos' => $videos
+        ]);
     }
 
     #[Route('/su/upload-video', name: 'upload_video')]

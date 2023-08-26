@@ -7,33 +7,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class AdminControllerCategoriesTest extends WebTestCase
 {
-    protected $entityManager;
-    protected $client;
 
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->client = static::createClient([],[
-            'PHP_AUTH_USER' => 'jw@symf6.loc',
-            'PHP_AUTH_PW' => 'pass'
-        ]);
-        $this->client->disableReboot();
-
-        $this->entityManager = $this->client->getContainer()->get('doctrine.orm.entity_manager');
-        $this->entityManager->beginTransaction();
-
-        $this->entityManager->getConnection()->setAutoCommit(false);
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-        if ($this->entityManager->getConnection()->isTransactionActive()) {
-            $this->entityManager->rollback();
-            $this->entityManager->close();
-            $this->entityManager = null;
-        }
-    }
+    use RoleAdmin;
 
     public function testTextOnPage(): void
     {

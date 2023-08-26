@@ -7,9 +7,11 @@ if (!Encore.isRuntimeEnvironmentConfigured()) {
 Encore
     .setOutputPath('public/assets/')
     .setPublicPath('/assets')
+    .addEntry('js/likes', './assets/js/likes.js')
     .addStyleEntry('css/dashboard', ['./assets/css/dashboard.css'])
     .addStyleEntry('css/login', ['./assets/css/login.css'])
-    .enableSingleRuntimeChunk()
+    .addStyleEntry('css/likes', ['./assets/css/likes.css'])
+    .disableSingleRuntimeChunk()
 ;
 
 module.exports = Encore.getWebpackConfig();
