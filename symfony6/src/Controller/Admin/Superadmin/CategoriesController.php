@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Admin\Superadmin;
 
 use App\Entity\Category;
-use App\Entity\Video;
 use App\Form\CategoryType;
-use App\Utils\CategoryTreeAdminOptionList;
 use App\Utils\CategoryTreeListAdmin;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route("/admin")
  */
 
-class AdminController extends AbstractController
+class CategoriesController extends AbstractController
 {
 
     private EntityManagerInterface $manager;
@@ -26,13 +24,6 @@ class AdminController extends AbstractController
     public function __construct(EntityManagerInterface $manager)
     {
         $this->manager = $manager;
-    }
-
-
-    #[Route('/', name: 'admin_main_page')]
-    public function index(): Response
-    {
-        return $this->render('admin/my_profile.html.twig');
     }
 
     #[Route('/su/categories', name: 'categories', methods: ['GET', 'POST'])]
@@ -88,42 +79,6 @@ class AdminController extends AbstractController
         $this->manager->remove($category);
         $this->manager->flush();
         return $this->redirectToRoute('categories');
-    }
-
-    #[Route('/videos', name: 'videos')]
-    public function videos(): Response
-    {
-        if ($this->isGranted('ROLE_ADMIN')) {
-            $videos = $this->manager->getRepository(Video::class)->findAll();
-        } else {
-            $videos = $this->getUser()->getLikedVideos();
-        }
-        return $this->render('admin/videos.html.twig', [
-            'videos' => $videos
-        ]);
-    }
-
-    #[Route('/su/upload-video', name: 'upload_video')]
-    public function uploadVideo(): Response
-    {
-        return $this->render('admin/upload_video.html.twig');
-    }
-
-    #[Route('/su/users', name: 'users')]
-    public function users(): Response
-    {
-        return $this->render('admin/users.html.twig');
-    }
-
-    public function getAllCategories(CategoryTreeAdminOptionList $categories, $editedCategory = null)
-    {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        $categories->getCategoryList($categories->buildTree());
-        return $this->render('admin/_all_categories.html.twig', [
-            'categories' => $categories,
-            'editedCategory' => $editedCategory
-        ]);
-
     }
 
     private function saveCategory(Category $category, $form, Request $request) : bool
