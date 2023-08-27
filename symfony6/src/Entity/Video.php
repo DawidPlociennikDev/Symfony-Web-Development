@@ -12,7 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'title_idx', columns: ['title'])]
 class Video
 {
-    public const videoForNotLoggedIn = 113716040;
+    // public const videoForNotLoggedIn = 113716040;
+    public const videoForNotLoggedInOrNoMembers = 113716040;
     public const VimeoPath = 'https://player.vimeo.com/video/';
     public const perPage = 5;
 
@@ -74,13 +75,9 @@ class Video
         return $this->path;
     }
 
-    public function getVimeoid($user): ?string
+    public function getVimeoid(): ?string
     {
-        if ($user) {
-            return $this->path;
-        } else {
-            return self::VimeoPath.self::videoForNotLoggedIn;
-        }
+        return $this->path;
     }
 
     public function setPath(string $path): static

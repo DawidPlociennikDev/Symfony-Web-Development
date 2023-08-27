@@ -45,7 +45,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(message: "Valid last name is required")]
     private ?string $last_name = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $vimeo_api_key = null;
 
     #[ORM\ManyToMany(targetEntity: Video::class, mappedBy: 'usersThatLike')]
@@ -55,6 +55,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Video::class, mappedBy: 'usersThatDontLike')]
     #[ORM\JoinTable('dislikes')]
     private Collection $dislikedVideos;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private ?Subscription $subscription = null;
 
     public function __construct()
     {
@@ -218,6 +221,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->dislikedVideos->removeElement($dislikedVideo)) {
             $dislikedVideo->removeUsersThatDontLike($this);
         }
+
+        return $this;
+    }
+
+    public function getSubscription(): ?Subscription
+    {
+        return $this->subscription;
+    }
+
+    public function setSubscription(?Subscription $subscription): static
+    {
+        $this->subscription = $subscription;
 
         return $this;
     }

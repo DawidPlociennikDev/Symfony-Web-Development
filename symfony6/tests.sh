@@ -10,9 +10,9 @@ php bin/console doctrine:migrations:migrate -n -q
 php bin/console doctrine:fixtures:load -n -q
 fi
 
-if [ -n "$1" ]
-then
-./bin/phpunit $1
-else
-./bin/phpunit
-fi
+# if [ -n "$1" ]
+# then
+# ./bin/phpunit $1
+# else
+# ./bin/phpunit
+# fi

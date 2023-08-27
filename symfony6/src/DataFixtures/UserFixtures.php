@@ -37,6 +37,7 @@ class UserFixtures extends Fixture
             ['John', 'Wayne', 'jw@symf6.loc', 'pass', 'hjd8dehdh', ['ROLE_ADMIN']],
             ['John', 'Wayne2', 'jw2@symf6.loc', 'pass', null, ['ROLE_ADMIN']],
             ['John', 'Doe', 'jd@symf6.loc', 'pass', null, ['ROLE_USER']],
+            ['Ted', 'Bundy', 'tb@symf6.loc', 'pass', null, ['ROLE_USER']],
         ];
     }
 }
