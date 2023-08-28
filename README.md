@@ -1,3 +1,10 @@
+
+## TODO
+
+- Testing
+- Redis (209 lesson)
+- Heroku deploy (245, 246 lessons)
+
 ## Symfony note
 
 Create project via composer
@@ -259,9 +266,25 @@ Security user
   bin/console make:user
 ```
 
+Security auth
+```bash
+  bin/console make:auth
+```
+
+hash Pass
+```bash
+  bin/console security:hash-password
+```
+
+
 package for security user
 ```bash
   composer require symfony/orm-pack symfony/form symfony/security-bundle symfony/validator
+```
+
+security checker
+```bash
+  composer require sensiolabs/security-checker
 ```
 
 password hasher
@@ -328,6 +351,63 @@ pagination github.com/KnpLabs/KnpPaginatorBundle
 ```bash
   composer require knplabs/knp-paginator-bundle
 ```
+
+Tranfser createdAt object to string knp-time-bundle
+```bash
+  composer require knplabs/knp-time-bundle
+```
+
+Doctrine Test Bundle
+```bash
+  composer require --dev dama/doctrine-test-bundle
+```
+
+Mime type validator
+```bash
+  composer require symfony/mime
+```
+
+Filesystem
+```bash
+  composer require symfony/filesystem
+```
+
+Easyadmin Bundle
+```bash
+  composer require admin
+  composer require easycorp/easyadmin-bundle
+```
+
+Symfony serve
+```bash
+  symfony server:start
+```
+
+Symfony API
+```bash
+  composer require api
+```
+
+Symfony Schema generator
+```bash
+  composer require --dev api-platform/schema-generator
+```
+
+Generate Schema
+```bash
+  vendor/bin/schema generate src/ config/schema.yaml
+```
+
+update schema
+```bash
+  bin/console doctrine:schema:update --force
+```
+
+uploader files
+```bash
+  composer require vich/uploader-bundle
+```
+
 ## Symfony deploy
 
 change .env.local to .env and fill production data
@@ -362,5 +442,27 @@ clear cache on the production
   bin/console cache:clear --env=prod --no-debug
 ```
 
+## Redis for Ubuntu
 
+```bash
+  sudo apt-get install redis-server
+  sudo apt-get install php-redis
+```
+
+```bash
+  sudo nano /etc/redis/redis.conf
+          maxmemory 128mb
+          maxmemory-policy allkeys-lru
+```
+
+```bash
+  sudo systemctl enable redis-server.service
+  sudo service apache2 restart
+```
     
+## Git
+
+Removing all files from index
+```bash
+  git rm -r --cached .
+```
