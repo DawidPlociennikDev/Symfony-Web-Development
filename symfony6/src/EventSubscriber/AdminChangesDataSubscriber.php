@@ -29,7 +29,7 @@ class AdminChangesDataSubscriber implements EventSubscriberInterface
         $this->cache = $cache;
     }
 
-    public function onKernelResponse(ResponseEvent $event, CacheInterface $cache): void
+    public function onKernelResponse(ResponseEvent $event, $cache): void
     {
         $request = $event->getRequest()->attributes->get('_route') . '.' . $event->getRequest()->getMethod();
 
