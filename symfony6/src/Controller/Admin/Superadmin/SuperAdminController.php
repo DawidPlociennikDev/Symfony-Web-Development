@@ -49,6 +49,8 @@ class SuperAdminController extends AbstractController
             $video->setPath($base_path . $fileName[0]);
             $video->setTitle($fileName[1]);
 
+            
+
             $this->manager->persist($video);
             $this->manager->flush();
         }

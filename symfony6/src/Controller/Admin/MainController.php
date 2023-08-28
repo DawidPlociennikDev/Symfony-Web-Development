@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @Route("/admin")
@@ -30,13 +30,13 @@ class MainController extends AbstractController
 
 
     #[Route('/', name: 'admin_main_page')]
-    public function index(Request $request, UserPasswordHasherInterface $password_encoder): Response
+    public function index(Request $request, UserPasswordHasherInterface $password_encoder, TranslatorInterface $translator): Response
     {
         $user = $this->getUser();
         $form = $this->createForm(UserType::class, $user, ['user' => $user]);
         $form->handleRequest($request);
         $is_invalid = null;
-        
+
         if ($form->isSubmitted() && $form->isValid()) {
 
             $user->setName($request->get('user')['name']);
@@ -47,6 +47,9 @@ class MainController extends AbstractController
             $user->setPassword($password);
             $this->manager->persist($user);
             $this->manager->flush();
+
+            // $translated = $translator->trans('Your changes were saved!');
+
 
             $this->addFlash('success', 'Your changes were saved!');
             return $this->redirectToRoute('admin_main_page');
