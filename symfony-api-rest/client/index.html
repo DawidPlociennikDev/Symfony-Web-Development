@@ -6,15 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-
+    <style>
+        .display-none {
+            display: none;
+        }
+    </style>
     <script src="./libraries/axios.js"></script>
     <script type="module" src="./app.js"></script>
 </head>
 
 <body>
+    <p>
+        <a id="order-by-name" class="display-none" href="#">order by name</a>
+    </p>
     <h1>Products list</h1>
 
     <div id="products-list"></div>
+    <a id="back-link" class="display-none" href="#">&laquo;Back</a>
+    <a id="next-link" class="display-none" href="#">Next&raquo;</a>
 
 </body>
 

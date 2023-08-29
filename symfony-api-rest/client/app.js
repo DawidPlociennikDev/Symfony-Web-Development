@@ -1,5 +1,3 @@
-// const { axios } = require("./libraries/axios");
+import { getData } from './src/getData.js';
 
-axios.get('http://localhost:8000/api/products').then(function (response) {
-    console.log(response);
-});
+document.addEventListener("DOMContentLoaded", getData);
